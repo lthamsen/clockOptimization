@@ -1,31 +1,56 @@
 #include <math.h>
 #include "Header.h"
 
-int calcPreTCNT(double Hz)
+int calcPreTCNT(float Hz)
 {
-	float pre0 = 0;
-	float pre8 = 0;
-	float pre64 = 0;
-	float pre256 = 0;
-	float pre1024 = 0;
-
-	int * x = excludePrescaler(Hz);
-	for (size_t i = 0; i < 5; i++)
+	int* x = excludePrescaler(Hz);
+	/*for (size_t i = 0; i < 5; i++)
 	{
-		printf_s("%d", *x);
+		printf_s("%d\n", *x);
 		x++;
 	}
+	
+	x -= 5;*/
+	float pre[5] = { 0 };
+
+	if (*x != 0)
+		pre[0] = 16000000 / Hz;
+	x++;
+	if (*x != 0)
+		pre[1] = 2000000 / Hz;
+	x++;
+	if (*x != 0)
+		pre[2] = 250000 / Hz;
+	x++;
+	if (*x != 0)
+		pre[3] = 62500 / Hz;
+	x++;
+	if (*x != 0)
+		pre[4] = 15625 / Hz;
+
+
+	for (int i = 0; i < 5; i++)
+	{
+		printf_s("%f\n", pre[i]);
+	}
+
+	for (int i = 0; i < 5; i++)
+	{
+		float hold = 0;
+
+		if (pre[i] == 0)
+		{
+			hold = pre[i + 1];
+			pre[i + 1] = 0;
+			pre[i] = hold;
+		}
+	}
+
+	for (int i = 0; i < 5; i++)
+	{
+		printf_s("%f\n", pre[i]);
+	}
 	return 0;
-
-	if (x != 0)
-		pre0 = 16000000 / Hz;
-	x++;
-	if (x != 0)
-		pre8 = 2000000 / Hz;
-	x++;
-	if (x != 0)
-		pre64 = 250000 / Hz;
-
 }
 
 int * excludePrescaler(float Hz)
@@ -68,4 +93,30 @@ int closestXTogivenN(int x, int N1, int N2)//Finder hvilken af N1 eller N2 er tæ
 	else
 		return 1;
 	return 0;
+}
+
+
+int closerToInt(float N1, float N2)
+{
+	N1 = N1 - floor(N1);
+	N2 = N2 - floor(N2);
+
+	printf_s("\nN1: %f N2: %f", N1, N2);
+
+	if (N1 > 0.5)
+		N1 = 1 - N1;
+	if (N2 > 0.5)
+		N2 = 1 - N2;
+
+	printf_s("\nN1: %f N2: %f", N1, N2);
+
+	if (N1 == N2)
+		return 3;
+	else
+	{
+		if (N1 < N2)
+			return 1;
+		if (N2 < N1)
+			return 2;
+	}
 }
