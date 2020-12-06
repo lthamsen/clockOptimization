@@ -2,7 +2,17 @@
 #include <stdio.h>
 
 
-int calcPreTCNT(float);
+struct prescaler calcPreTCNT(float);
 int * excludePrescaler(float);
-int closestXTogivenN(int x, int, int);
+float* frequenzies(float);
+int findPrescaler(float);
+int closestXTogivenN(int x, float, float);
 int closerToInt(float, float);
+unsigned int ltRound(float);
+//void printInternal(Hz);
+
+struct prescaler 
+{
+	int prescalerNumber_;
+	int frequenzy_;
+};

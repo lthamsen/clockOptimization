@@ -20,9 +20,10 @@ int main(void)
 		printf_s("Indtast frekvens der skal tjekkes mod prescaler: ");
 		scanf_s("%d", &x);
 		printf_s("\n");
-		calcPreTCNT(x);
-		printf_s("\n");
+
+		
+		struct prescaler pre = calcPreTCNT(x);
+		printf_s("%d %d\n", pre.prescalerNumber_, pre.frequenzy_);
+
 	}
-	
-	calcPreTCNT(20000);
 }
