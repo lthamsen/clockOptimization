@@ -1,6 +1,6 @@
 #include "Header.h"
 #include <stdio.h>
-
+#include <Windows.h>
 int main(void)
 {
 	/*int x = 0;
@@ -16,14 +16,18 @@ int main(void)
 	*/
 	while (1)
 	{
-		int x = 0;
+		/*int x = 0;
 		printf_s("Indtast frekvens der skal tjekkes mod prescaler: ");
 		scanf_s("%d", &x);
-		printf_s("\n");
+		printf_s("\n");*/
 
 		
-		struct prescaler pre = calcPreTCNT(x);
-		printf_s("%d %d\n", pre.prescalerNumber_, pre.frequenzy_);
+		for (size_t i = 0; i < 16000000; i += 10)
+		{
+			struct prescaler pre = calcPreTCNT(i);
+			printf_s("| %d | %d |", pre.prescalerNumber_, pre.frequenzy_);
+		}
+		
 
 	}
 }

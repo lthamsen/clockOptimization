@@ -1,7 +1,13 @@
 #include <math.h>
 #include "Header.h"
 #define SIZE 5
+int pre[SIZE];
 
+
+void clockInit(int prescaler, int TCNT)
+{
+
+}
 struct prescaler calcPreTCNT(float Hz)
 {
 	struct prescaler result;
@@ -37,34 +43,38 @@ struct prescaler calcPreTCNT(float Hz)
 	}
 	return result;
 }
-int* excludePrescaler(float Hz)
+//^Giver den endelige TCNT v√¶rdi og hvilken prescaler der skal bruges. 
+int findPrescaler(float Hz)
 {
-	#define SIZE 5
-	int pre[SIZE];
-	for (int index = 0; index < SIZE; index++)
-		pre[index] = 1;
-	if (!(Hz >= 62745 && Hz <= 16000000))
-		pre[0] = 0;
-	if (!(Hz >= 7843 && Hz <= 2000000))
-		pre[1] = 0;
-	if (!(Hz >= 980 && Hz <= 250000))
-		pre[2] = 0;
-	if (!(Hz >= 245 && Hz <= 62500))
-		pre[3] = 0;
-	if (!(Hz >= 61 && Hz <= 15625))
-		pre[4] = 0;
-	return pre;
+	float* check = frequenzies(Hz);
+	int hold = 0;
+	int correctPrescaler = -1;
+	for (size_t i = 0; i < SIZE; i++)
+	{
+		if (closestXTogivenN((int)Hz, (float)hold, check[i]) == 2)
+		{
+			hold = check[i];
+			correctPrescaler = i;
+		}
+	}
+	return correctPrescaler;
 }
-//^Excluderer umulige prescaler vÊrdier.
+//^Finder den prescaler der der kommer tÔøΩttest pÔøΩ frekvens vÔøΩrdien ved en integer tcnt vÔøΩrdi.
 float* frequenzies(float Hz)
 {
 	float check[SIZE] = { 0 };
-	int* frequenzy = excludePrescaler(Hz);
+	excludePrescaler(Hz);
+	/*for (size_t i = 0; i < SIZE; i++)
+	{
+		printf_s("%p\n", check[i]);
+	}*/
+
 	for (size_t i = 0; i < SIZE; i++)
 	{
-		if (frequenzy[i] != 0)
+
+		if (pre[i] != 0)
 		{
-			switch (i)
+			/*switch (i)
 			{
 			case 0:
 				check[i] = 16000000 / (float)(ltRound(16000000 / Hz));
@@ -82,34 +92,50 @@ float* frequenzies(float Hz)
 				check[i] = 15625 / (float)(ltRound(15625 / Hz));
 				break;
 			default:
-				break;
-			}
+				break;*/
+			if(i == 0)
+				check[i] = 16000000 / (float)(ltRound(16000000 / Hz));
+			if(i == 1)
+				check[i] = 2000000 / (float)(ltRound(2000000 / Hz));
+			if(i == 2)
+				check[i] = 250000 / (float)(ltRound(250000 / Hz));
+			if(i == 3)
+				check[i] = 62500 / (float)(ltRound(62500 / Hz));
+			if(i == 4)
+				check[i] = 15625 / (float)(ltRound(15625 / Hz));
 		}
 	}
 	/*for (size_t i = 0; i < SIZE; i++)
 	{
-		printf_s("\n%d %f", i, check[i]);
+		printf_s("\n%f", check[i]);
 	}
 	printf_s("\n\n");*/
 	return check;
 }
-//^Finder ud af hvilken frekvens timeren k¯rer med ved en geven tcnt vÊrdi og timer.
-int findPrescaler(float Hz)
+//^Finder ud af hvilken frekvens timeren kÔøΩrer med ved en geven tcnt vÔøΩrdi og timer.
+int excludePrescaler(float Hz)
 {
-	float* check = frequenzies(Hz);
-	int hold = 0;
-	int correctPrescaler = -1;
-	for (size_t i = 0; i < SIZE; i++)
+	/*int pre[SIZE];*/
+	for (int index = 0; index < SIZE; index++)
+		pre[index] = 1;
+	if (!(Hz >= 62745 && Hz <= 16000000))
+		pre[0] = 0;
+	if (!(Hz >= 7843 && Hz <= 2000000))
+		pre[1] = 0;
+	if (!(Hz >= 980 && Hz <= 250000))
+		pre[2] = 0;
+	if (!(Hz >= 245 && Hz <= 62500))
+		pre[3] = 0;
+	if (!(Hz >= 61 && Hz <= 15625))
+		pre[4] = 0;
+	/*for (size_t i = 0; i < SIZE; i++)
 	{
-		if (closestXTogivenN((int)Hz, (float)hold, check[i]) == 2)
-		{
-			hold = check[i];
-			correctPrescaler = i;
-		}
+		printf_s("\n%d %d", (int)i, pre[i]);
 	}
-	return correctPrescaler;
+	printf_s("\n\n");*/
+	return pre;
 }
-//^Finder den prescaler der der kommer tÊttest pÂ frekvens vÊrdien ved en integer tcnt vÊrdi.
+//^Excluderer umulige prescaler vÔøΩrdier.
 int closestXTogivenN(int x, float N1, float N2)
 {
 	N1 = x - N1;
@@ -126,7 +152,7 @@ int closestXTogivenN(int x, float N1, float N2)
 		return 1;
 	return 0;
 }
-//^Finder hvilken af N1 eller N2 er tÊttest pÂ x.
+//^Finder hvilken af N1 eller N2 er tÔøΩttest pÔøΩ x.
 int closerToInt(float N1, float N2)
 {
 	N1 = N1 - floor(N1);
@@ -134,7 +160,7 @@ int closerToInt(float N1, float N2)
 	if (N1 > 0.5)
 		N1 = 1 - N1;
 	if (N2 > 0.5)
-		N2 = 1 - N2;
+		N2 = 1 - N2; 
 	if (N1 == N2)
 		return 3;
 	else
@@ -145,7 +171,7 @@ int closerToInt(float N1, float N2)
 			return 2;
 	}
 }
-unsigned int ltRound(float number) // Afrunder en float til nÊrmeste integer.
+unsigned int ltRound(float number) // Afrunder en float til nÔøΩrmeste integer.
 {
 	if (fmod(number, 1) >= 0.5)
 		return (unsigned int)ceil(number);
